@@ -202,9 +202,6 @@ namespace OpenBabel
           str = "Ti";
         } else if (strncasecmp(temp_type,"Ru.", 3) == 0) { // e.g. Ru.oh
           str = "Ru";
-        // Fixes PR#3557898
-        } else if (strncmp(temp_type, "N.4", 3) == 0) {
-          atom.SetFormalCharge(1);
         }
 
         ttab.SetToType("ATN");
@@ -310,35 +307,6 @@ namespace OpenBabel
 
         mol.AddBond(start,end,order);
       }
-      
-    // Make a pass to ensure that there are no double bonds
-    // between atoms which are also involved in aromatic bonds 
-    // as that may ill-condition kekulization (fixes potential
-    // issues with molecules like CEWYIM30 (MMFF94 validation suite)
-    // Patch by Paolo Tosco 2012-06-07
-    int idx1, idx2;
-    bool idx1arom, idx2arom;
-    FOR_BONDS_OF_MOL(bond, mol) {
-      if (bond->GetBO() != 2)
-          continue;
-      idx1 = bond->GetBeginAtom()->GetIdx();
-      idx2 = bond->GetEndAtom()->GetIdx();
-      idx1arom = idx2arom = false;
-      FOR_BONDS_OF_MOL(bond2, mol) {
-        if (&*bond == &*bond2)
-          continue;
-        if ((bond2->GetBeginAtom()->GetIdx() == idx1 || bond2->GetEndAtom()->GetIdx() == idx1)
-          && bond2->GetBO() == 5)
-          idx1arom = true;
-        else if ((bond2->GetBeginAtom()->GetIdx() == idx2 || bond2->GetEndAtom()->GetIdx() == idx2)
-          && bond2->GetBO() == 5)
-          idx2arom = true;
-        if (idx1arom && idx2arom) {
-          bond->SetBO(1);
-          break;
-        }
-      }
-    }
 
     // Now that bonds are added, make a pass to "de-aromatize" carboxylates
     // and (di)thiocarboxylates
@@ -371,82 +339,6 @@ namespace OpenBabel
           bond->SetBO(2); // we have to pick one, let's use this one
       }
 
-    // Make a pass to fix aromatic bond orders and formal charges
-    // involving nitrogen and oxygen atoms - before this patch
-    // the aromaticity of a molecule as simple as pyridinium
-    // cation could not be correctly perceived
-    // Patch by Paolo Tosco 2012-06-07
-    OBAtom *carbon, *partner, *boundToNitrogen;
-    OBBitVec bv;
-    
-    bv.SetBitOn(nbonds);
-    bv.Clear();
-    FOR_BONDS_OF_MOL(bond, mol)
-    {
-      if (bv[bond->GetIdx()] || (bond->GetBO() != 5))
-        continue;
-
-      if ((bond->GetBeginAtom()->IsCarbon() && bond->GetEndAtom()->IsNitrogen())
-        || (bond->GetBeginAtom()->IsNitrogen() && bond->GetEndAtom()->IsCarbon())) {
-        carbon = (bond->GetBeginAtom()->IsCarbon() ? bond->GetBeginAtom() : bond->GetEndAtom());
-        int min_n_h_bonded = 100;
-        int min_idx = mol.NumAtoms() + 1;
-        FOR_BONDS_OF_ATOM(bond2, carbon) {
-          if (bond2->GetBO() != 5)
-            continue;
-          partner = (bond2->GetBeginAtom() == carbon ? bond2->GetEndAtom() : bond2->GetBeginAtom());
-          if (partner->IsNitrogen() && partner->GetValence() == 3 && partner->GetFormalCharge() == 0) {
-            int n_h_bonded = 0;
-            FOR_BONDS_OF_ATOM(bond3, partner) {
-              if (boundToNitrogen->IsHydrogen())
-                n_h_bonded++;
-            }
-            if (n_h_bonded < min_n_h_bonded || (n_h_bonded == min_n_h_bonded && partner->GetIdx() < min_idx)) {
-              min_n_h_bonded = n_h_bonded;
-              min_idx = partner->GetIdx();
-            }
-          }
-        }
-        FOR_BONDS_OF_ATOM(bond2, carbon) {
-          if (bond2->GetBO() != 5)
-            continue;
-          partner = (bond2->GetBeginAtom() == carbon ? bond2->GetEndAtom() : bond2->GetBeginAtom());
-          if (partner->IsNitrogen() && partner->GetValence() == 3 && partner->GetFormalCharge() == 0) {
-            int n_ar_bond = 0;
-            FOR_BONDS_OF_ATOM(bond3, partner) {
-              boundToNitrogen = (bond3->GetBeginAtom() == partner ? bond3->GetEndAtom() : bond3->GetBeginAtom());
-              if (boundToNitrogen->IsOxygen() && boundToNitrogen->GetValence() == 1) {
-                n_ar_bond = -1;
-                break;
-              }
-              if (bond3->GetBO() == 5)
-                ++n_ar_bond;
-            }
-            if (n_ar_bond == -1)
-              continue;
-            if (partner->GetIdx() == min_idx) {
-              partner->SetFormalCharge(1);
-              if (n_ar_bond == 1) {
-                bond2->SetBO(2);
-              }
-            }
-            else if (n_ar_bond == 1) {
-              bond2->SetBO(1);
-            }
-          }
-          bv.SetBitOn(bond2->GetIdx());
-        }
-      } else if ((bond->GetBeginAtom()->IsCarbon() && bond->GetEndAtom()->IsOxygen())
-        || (bond->GetBeginAtom()->IsOxygen() && bond->GetEndAtom()->IsCarbon())) {
-        OBAtom *atom1, *atom2;
-        atom1 = bond->GetBeginAtom();
-        atom2 = bond->GetEndAtom();
-        if (atom1->IsOxygen() && atom1->IsInRingSize(6))
-          atom1->SetFormalCharge(1);
-        else if (atom2->IsOxygen() && atom2->IsInRingSize(6))
-          atom2->SetFormalCharge(1);
-      }
-    }
     // Suggestion by Liu Zhiguo 2008-01-26
     // Mol2 files define atom types -- there is no need to re-perceive
     mol.SetAtomTypesPerceived();
