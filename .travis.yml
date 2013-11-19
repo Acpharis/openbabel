@@ -1,10 +1,6 @@
 language: python
 
 python:
- - "2.5"
- - "2.6"
- - "2.7"
- - "3.2"
  - "3.3"
 
 env:
@@ -21,9 +17,8 @@ before_script:
  - mkdir build
  - cd build
  - env
- - cmake -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON -DPYTHON_EXECUTABLE=$VIRTUAL_ENV/bin/python -DPYTHON_INCLUDE_PATH=$VIRTUAL_ENV/include/python$TRAVIS_PYTHON_VERSION -DPYTHON_LIBRARY=$VIRTUAL_ENV/lib/python$TRAVIS_PYTHON_VERSION/config/libpython$TRAVIS_PYTHON_VERSION.so ..
+ - cmake -DALL_BINDINGS=ON -DRUN_SWIG=ON ..
 
 script:
  - make
- - make install
  - make test
