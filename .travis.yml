@@ -1,14 +1,7 @@
-language: python
+language: cpp
 
 compiler:
  - gcc
-
-python:
- - "2.5"
- - "2.6"
- - "2.7"
- - "3.2"
- - "3.3"
 
 before_install:
  - sudo apt-get update -qq
@@ -20,7 +13,7 @@ before_script:
  - mkdir build
  - cd build
  - env
- - cmake -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON -DPYTHON_EXECUTABLE=$VIRTUAL_ENV/bin/python -DPYTHON_INCLUDE_PATH=$VIRTUAL_ENV/include/python$TRAVIS_PYTHON_VERSION -DPYTHON_LIBRARY=$VIRTUAL_ENV/lib/python$TRAVIS_PYTHON_VERSION/config/libpython$TRAVIS_PYTHON_VERSION.so ..
+ - cmake -DPYTHON_BINDINGS=ON -DRUN_SWIG=ON -DCMAKE_INSTALL_PREFIX=~ ..
 
 script:
  - make
