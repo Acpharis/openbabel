@@ -1,4 +1,6 @@
-language: cpp
+language:
+ - cpp
+ - python
 
 compiler:
  - gcc
