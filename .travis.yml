@@ -1,14 +1,15 @@
 language: python
 
-compiler:
- - gcc
-
 python:
  - "2.5"
  - "2.6"
  - "2.7"
  - "3.2"
  - "3.3"
+
+env:
+ - CC=clang CXX=clang++
+ - CC=gcc CXX=g++
 
 before_install:
  - sudo apt-get update -qq
