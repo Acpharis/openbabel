@@ -1,11 +1,8 @@
-language: python
+language: cpp
 
-python:
- - "3.3"
-
-env:
- - CC=clang CXX=clang++
- - CC=gcc CXX=g++
+compiler:
+ - gcc
+ - clang
 
 before_install:
  - sudo apt-get update -qq
@@ -17,7 +14,7 @@ before_script:
  - mkdir build
  - cd build
  - env
- - cmake -DALL_BINDINGS=ON -DRUN_SWIG=ON -DCSHARP_EXECUTABLE=gmcs ..
+ - cmake -DPYTHON_BINDINGS=ON  -DPHP_BINDINGS=ON -DPERL_BINDINGS=ON -DJAVA_BINDINGS=ON -DCSHARP_BINDINGS=ON  -DRUN_SWIG=ON -DCSHARP_EXECUTABLE=gmcs ..
 
 script:
  - make
