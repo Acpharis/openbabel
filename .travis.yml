@@ -13,7 +13,6 @@ install:
 before_script:
  - mkdir build
  - cd build
- - env
  - cmake -DPYTHON_BINDINGS=ON  -DPHP_BINDINGS=ON -DPERL_BINDINGS=ON -DJAVA_BINDINGS=ON -DCSHARP_BINDINGS=ON  -DRUN_SWIG=ON -DCSHARP_EXECUTABLE=gmcs ..
 
 script:
