@@ -8,13 +8,13 @@ before_install:
  - sudo apt-get update -qq
 
 install:
- - sudo apt-get install -qq swig libeigen3-dev libperl-dev mono-gmcs php5-dev
+ - sudo apt-get install -qq swig libeigen3-dev libperl-dev mono-mcs php5-dev
 
 before_script:
  - mkdir build
  - cd build
- - cmake -DPYTHON_BINDINGS=ON  -DPHP_BINDINGS=ON -DPERL_BINDINGS=ON -DJAVA_BINDINGS=ON -DCSHARP_BINDINGS=ON  -DRUN_SWIG=ON -DCSHARP_EXECUTABLE=gmcs ..
+ - cmake -DPYTHON_BINDINGS=ON  -DPHP_BINDINGS=ON -DPERL_BINDINGS=ON -DJAVA_BINDINGS=ON -DCSHARP_BINDINGS=ON  -DRUN_SWIG=ON -DCSHARP_EXECUTABLE=mcs ..
 
 script:
  - make
- - make test
+ - ctest -V
