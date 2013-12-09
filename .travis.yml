@@ -8,7 +8,7 @@ before_install:
  - sudo apt-get update -qq
 
 install:
- - sudo apt-get install -qq swig libeigen3-dev libperl-dev mono-gmcs php5-dev ruby-dev default-jdk
+ - sudo apt-get install -qq swig libeigen3-dev libperl-dev mono-mcs php5-dev ruby-dev default-jdk
 
 before_script:
  - mkdir build
@@ -17,4 +17,4 @@ before_script:
 
 script:
  - make
- - make test
+ - ctest -V
