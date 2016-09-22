@@ -95,6 +95,9 @@ int canonconsistenttest(int argc, char* argv[])
     case 3:
       OB_ASSERT( mdoMultiMoleculeFile(OBTestUtil::GetFilename("cantest.sdf")) );
       break;
+    case 4:
+      OB_ASSERT( mdoMultiMoleculeFile(OBTestUtil::GetFilename("VEHICLe.smi")) );
+      break;
     default:
       cout << "Test numer " << choice << " does not exist!\n";
       return -1;
